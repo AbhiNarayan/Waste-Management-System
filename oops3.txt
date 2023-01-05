@@ -1,0 +1,361 @@
+#include <iostream>
+#include <string.h>
+#include <fstream>
+#include <vector>
+#include <sstream>
+using namespace std;
+#define max 20
+class place
+{
+    private:
+    vector <int> g1;
+    string firstcol,district;   // Sellur Road,Shenoy Nagar,Simmakkal,South Avani Moola Street,South Gate,South Marret Street,South Masi Street.
+    char s[15][max];   //string<arrayname>[no of string] [size of each string]
+    int n;
+    int y;
+    double b[15];
+    double a[2][15];
+    int dist[100];
+    int whichline;
+    
+    public:
+    void retrieve()
+    {
+        string line1,line2,firstcol;
+        char ch;
+        int r,count =0;
+        int temp;
+        istringstream iss;
+        fstream fin;
+        fin.open("sample.txt",ios::in);
+        r=count_no_of_district();
+        int min=10000;
+        while(!fin.eof())
+        {
+            getline(fin,line1);
+            stringstream ss(line1);
+            ss>>firstcol;
+            int y= stoi(firstcol);
+            g1.push_back(y);
+        }
+        g1.pop_back();
+        for (int i=0; i<r; ++i)
+        {
+            if(g1[i]<min)
+            {
+                min=g1[i];
+            }
+        }
+        for (int i=0; i<r; ++i)
+        {
+            if(min==g1[i])
+            {
+                whichline=i;      //holds the value of which line has value of the lowest dist
+            }
+        }
+        fin.close();
+    }
+    
+    void answer()
+    {
+        int y;
+        string line3;
+        fstream fin;
+        fin.open("sample.txt",ios::in);
+        while(!fin.eof())
+        {
+            y=count_no_of_district();
+            for(int i=0;i<y;i++)
+            {
+                getline(fin,line3);
+                if(i==whichline)
+                {
+                    cout<<line3;
+                }
+            }
+        }
+    }
+    void getdata()
+    {
+        cout<<"enter the district:"<<endl;
+        getline(cin>>ws,district);
+        cout<<"enter the number of streets in district";
+        cin>>n;
+        for(int i=0;i<n;i++)
+        {
+            cout<<"enter name of street"<<i+1<<":";    // assuming that there are 4 waste bins per street
+            cin>>s[i];
+        }
+        srand((unsigned) time(NULL));       //providing a seed value
+        for(int i=0;i<n;i++)
+        {
+            dist[i]=1 + (rand()%1000);
+            for(int j=0;j<2;j++)
+            {                                           //community dustbin --- 1100 litres
+                int temp;                               //each street has 2 comm bins
+                temp=1 + (rand()%100);
+                a[i][j]=(temp*1100)/100;
+            }                                      
+        }
+    }
+    void dispdist()
+    {
+        int count3=count_no_of_district();
+        cout<<count3<<endl;
+        for(int i=0;i<count3;i++)
+        {
+            cout<<dist[i]<<endl;
+        }
+    }
+    int lowest_dist()
+    {
+        int count2=count_no_of_district();
+        int lowest=dist[0];
+        for(int i=0;i<count2-1;i++)
+        {
+            if(dist[i]<lowest)
+            {
+                lowest = dist[i];
+            }
+            
+        }
+        return lowest;
+    }
+    int count_no_of_district()
+    {
+        fstream fin;
+        string f;
+        string b="district";
+        int count =0;
+        fin.open("sample.txt",ios::in);
+        {
+            if(fin.is_open())
+            {
+                while(fin)
+                {
+                    fin>>f;
+                    if(strcmp(f.c_str(),b.c_str())==0)
+                    {
+                        count+=1;
+                    }
+                }
+            }
+        }
+        return count;
+    }
+    void filewrite()
+    {
+        place g;
+        int x;
+        x=g.count_no_of_district();
+        fstream fapp;
+        fapp.open("sample.txt",ios::app);
+        int temp=count_no_of_district();
+        for(int i= temp-1;i<temp;i++)
+        {
+            dist[i]=1 + (rand()%1000);
+            fapp<<dist[i]<<' ';
+        }
+        for(int i=0;i<n;i++)
+        {
+            double count=0;
+            for(int j=0;j<2;j++)
+            {
+                count=count+a[i][j];
+            }
+            b[i]=count;
+        }
+        while(fapp.is_open())
+        {
+            int temp;
+            fapp<<"district"<<' '<<district<<' '<<n<<' ';
+            temp=count_no_of_district();
+            for(int i=0;i<n;i++)
+            {
+                fapp<<s[i]<<' '<<b[i]<<' ';
+            }
+            fapp<<"\n";
+        fapp.close();
+        }
+    }
+    void display()
+    {
+        fstream fout;
+        fout.open("sample.txt",ios::out);
+        int temp=count_no_of_district();
+        for(int i= temp-1;i<temp;i++)
+        {
+            dist[i]=1 + (rand()%1000);
+            fout<<dist[i]<<' ';
+        }
+        for(int i=0;i<n;i++)
+        {
+            double count=0;
+            for(int j=0;j<2;j++)
+            {
+                count=count+a[i][j];
+            }
+            b[i]=count;
+        }
+        while(fout.is_open())
+        {
+            int temp;
+            fout<<"district"<<' '<<n<<' ';
+            temp=count_no_of_district();
+            for(int i=0;i<n;i++)
+            {
+                fout<<s[i]<<' '<<b[i]<<' ';
+            }
+            fout<<"\n";
+        fout.close();
+        }
+    }
+    friend class truck;
+};
+
+class truck
+{
+    private:
+    string name;
+    int pass;
+    string loc;
+    int cap;
+    stringstream ss;
+    int dist;
+    public:
+    vector<string> a;
+    /*void assignloc(int x)
+    {
+        int min,n;
+        min=dist[0];
+        for(int i=0;i<x-1;i++)
+        if(a[i]<min)
+        {
+           min = a[i];
+        }
+        cout<<"nearest locality:";
+    }*/
+    void getinput ()
+    {
+        cout << "enter user name:" << endl;
+	    cin >> name;
+	    cout << "enter password:" << endl;
+	    cin >> pass;
+    }
+    void display ()
+    {
+        cout << "USERNAME:" << name << endl << "LOCATION:" << loc <<"lorry capacity"<<cap<<endl;
+    }
+    void seeall()
+    {
+        fstream fin;
+        fin.open("sample.txt",ios::in);
+        string s2;
+        if(fin.is_open())
+        {
+            while(fin)
+            {
+                fin>>s2;
+                cout<<s2<<endl;
+            }
+        }
+    }
+    void comp()
+    {
+        string myfile;
+        fstream fin;
+        fin.open("sample.txt",ios::in);
+        /*if(fin.is_open())            // only the first sentence is displayed
+        {
+            while(fin.good())         //everything is displayed but no spaces
+            {
+                fin>>myfile;       //piping file's content into stream
+                cout<<myfile;
+            }
+        }*/
+        string temp,b,k;
+        int found;
+        if (!fin.is_open())
+        {
+            cout<< "Could not open the file -"<<endl;
+        }
+        while (fin) 
+        {
+            fin>>temp;           // iterating through the file line by line
+            if(stringstream(temp)>>found)  //extracting only the integer values
+            {
+                cout<<found<<endl;
+            }
+        
+        }
+    }
+    friend int pass (truck * a);
+};
+
+int pass (truck * a)
+{
+    int c, flag = 0;
+    srand ((unsigned) time (NULL));
+    c = 1 + (rand ()%12700);            // lorry max capacity = 12700 litres of waste
+    a->cap=c;
+    if (a->pass != 1234)
+	{
+	    cout << "wrong password try again";
+	    return 1;
+	}
+	return 0;
+}
+int main()
+{
+    int x;
+    cout << "\033[1;35mWELCOME TO WASTE MANAGEMEENT APP\033[0m\n";	//cout << "\033[1;34m "ENTER NUMBER:\033[0m\n" 
+    cout << "\033[1;34m1.END USER\033[0m\n";
+    cout << "\033[1;34m2.ADMINISTRATOR\033[0m\n";
+    cout << "\033[1;34mENTER NUMBER\033[0m\n";
+    cin >> x;
+    switch (x)
+    {
+        case 1:
+        {                                 // using explicit block so the variables in case1 are not visible in the subsequent cases
+            int n,n1;
+            truck a;
+            truck *p;
+            p = &a;
+            p->getinput ();
+            n = pass (p);
+        if (n == 1)
+        {
+            break;
+            
+        }
+        place j;
+        j.retrieve();
+        cout<<"the details of the closest district"<<endl;
+        j.answer();
+            break;
+        }
+        case 2:
+        int z;
+        cout<<"1.view existing details of localities and waste bins \n2.add more localities and waste bins ";
+        cin>>z;
+        switch(z)
+        {
+            case 1:
+            {
+            truck c;
+            c.seeall();
+            }
+            break;
+            case 2:
+            
+            place p;
+            int f;
+            p.getdata();
+            p.filewrite();
+            f=p.count_no_of_district();
+            cout<<"TOTAL NUMBER OF DISTRICTS ARE \t"<<f;
+            break;
+        }
+        
+    } // password for end user has been set to 1234
+}
