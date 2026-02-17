@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Waste Management App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>WASTE MANAGEMENT APP</h1>
+
+    <!-- LOGIN SECTION -->
+    <div class="card">
+        <h2>Login</h2>
+        <select id="role">
+            <option value="user">End User</option>
+            <option value="admin">Administrator</option>
+        </select>
+
+        <input type="password" id="password" placeholder="Enter Password">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <!-- ADMIN SECTION -->
+    <div class="card hidden" id="adminSection">
+        <h2>Admin Panel</h2>
+        <input type="text" id="districtName" placeholder="District Name">
+        <input type="number" id="distance" placeholder="Distance">
+        <button onclick="addDistrict()">Add District</button>
+
+        <h3>All Districts</h3>
+        <ul id="districtList"></ul>
+    </div>
+
+    <!-- USER SECTION -->
+    <div class="card hidden" id="userSection">
+        <h2>Nearest District</h2>
+        <button onclick="showNearest()">Find Nearest</button>
+        <p id="nearestResult"></p>
+    </div>
+
+</div>
+
+<script>
+
+let districts = [];
+
+function login() {
+    let role = document.getElementById("role").value;
+    let password = document.getElementById("password").value;
+
+    if(password !== "1234") {
+        alert("Wrong Password!");
+        return;
+    }
+
+    if(role === "admin") {
+        document.getElementById("adminSection").classList.remove("hidden");
+        document.getElementById("userSection").classList.add("hidden");
+    } else {
+        document.getElementById("userSection").classList.remove("hidden");
+        document.getElementById("adminSection").classList.add("hidden");
+    }
+}
+
+function addDistrict() {
+    let name = document.getElementById("districtName").value;
+    let distance = parseInt(document.getElementById("distance").value);
+
+    if(name && distance) {
+        districts.push({name, distance});
+        displayDistricts();
+        alert("District Added Successfully!");
+    }
+}
+
+function displayDistricts() {
+    let list = document.getElementById("districtList");
+    list.innerHTML = "";
+
+    districts.forEach(d => {
+        let li = document.createElement("li");
+        li.textContent = d.name + " - Distance: " + d.distance;
+        list.appendChild(li);
+    });
+}
+
+function showNearest() {
+    if(districts.length === 0) {
+        alert("No districts available!");
+        return;
+    }
+
+    let min = districts[0];
+
+    districts.forEach(d => {
+        if(d.distance < min.distance) {
+            min = d;
+        }
+    });
+
+    document.getElementById("nearestResult").innerHTML =
+        "Nearest District: <b>" + min.name + "</b> (Distance: " + min.distance + ")";
+}
+
+</script>
+
+</body>
+</html>
